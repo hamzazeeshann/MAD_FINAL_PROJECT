@@ -183,6 +183,35 @@ class CustomizerScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 12),
+          ElevatedButton.icon(
+            onPressed: () async {
+              // Show dialog to name the preset
+              final presetName = await _showPresetNameDialog(context);
+              if (presetName != null && presetName.isNotEmpty) {
+                try {
+                  await ref.read(customizerProvider.notifier).savePresetToFirebase(presetName);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Preset "$presetName" saved to cloud!')),
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error: ${e.toString().replaceAll('Exception: ', '')}')),
+                    );
+                  }
+                }
+              }
+            },
+            icon: const Icon(Icons.cloud_upload),
+            label: const Text('SAVE TO CLOUD'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.deepPurple,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+            ),
+          ),
+          const SizedBox(height: 12),
           OutlinedButton.icon(
             onPressed: () {
               Navigator.of(context).push(
@@ -196,6 +225,42 @@ class CustomizerScreen extends ConsumerWidget {
               side: const BorderSide(color: kDarkAccent),
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<String?> _showPresetNameDialog(BuildContext context) {
+    final controller = TextEditingController();
+    return showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: kDarkSecondary,
+        title: const Text('Name Your Preset', style: TextStyle(color: kDarkText)),
+        content: TextField(
+          controller: controller,
+          style: const TextStyle(color: kDarkText),
+          decoration: InputDecoration(
+            hintText: 'e.g., Stormy Night',
+            hintStyle: TextStyle(color: kDarkText.withOpacity(0.5)),
+            enabledBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: kDarkAccent),
+            ),
+            focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: kDarkAccent),
+            ),
+          ),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('CANCEL', style: TextStyle(color: kDarkText)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, controller.text),
+            child: const Text('SAVE', style: TextStyle(color: kDarkAccent)),
           ),
         ],
       ),

@@ -1,13 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'package:hawahawa/constants/colors.dart';
 import 'package:hawahawa/screens/splash_screen.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Firebase
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -28,7 +36,7 @@ class PixelWeatherApp extends ConsumerWidget {
       focusNode: focusNode,
       onKeyEvent: (FocusNode node, KeyEvent event) {
         if (event is KeyDownEvent) {
-          if (event.logicalKey == LogicalKeyboardKey.keyP) {
+          if (event.logicalKey == LogicalKeyboardKey.escape) {
             if (navigatorKey.currentState != null) {
               navigatorKey.currentState!.pushAndRemoveUntil(
                 MaterialPageRoute(
